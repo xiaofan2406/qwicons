@@ -1,15 +1,15 @@
 import glob from "fast-glob";
-import { definePack } from "../define-pack";
-import { extractor } from "../extractor";
+import { definePack } from "./define-pack";
+import { extractor } from "./extractor";
 
-export const lucideConfig = definePack({
+export const lucidePack = definePack({
   name: "Lucide",
   prefix: "Lu",
   variants: {},
   defaultVariants: {},
   contents: {
     files: glob("node_modules/lucide-static/icons/*.svg"),
-    extract: extractor(/^.*\/(?<name>.+?).svg/),
+    extract: extractor(/^.*\/(?<name>.+?)\.svg/),
   },
   projectUrl: "https://lucide.dev/",
   license: "ISC",

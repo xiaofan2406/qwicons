@@ -1,13 +1,11 @@
 import { mkdir, readFile, rm, writeFile } from "fs/promises";
-import { dirname, join } from "path";
+import { dirname } from "path";
 import { optimize } from "svgo";
 import { IconPackConfig } from "./config.interface";
-import { configs } from "./configs";
-import { downloadIcons } from "./download-icons";
+import { lucidePack } from "./lucide";
 
 const iconLimit = process.env["ICON_LIMIT"];
 const baseOutputPath = "src/icons";
-const pageOutputPath = "src/page";
 
 const getOutputPath = (pack: IconPackConfig, name: string, ext: string) =>
   `${baseOutputPath}/${pack.prefix.toLowerCase()}/${name}${ext}`;
@@ -83,7 +81,7 @@ async function generateIconVariant(file: string, pack: IconPackConfig) {
             ...colorAttributes,
             width: "1em",
             height: "1em",
-            "data-qwikest-icon": undefined,
+            "data-qwicons": undefined,
           }).map(([key, value]) => ({ [key]: value })),
         },
       },
@@ -115,15 +113,24 @@ async function generateIcons(pack: IconPackConfig) {
     recursive: true,
   });
 
-  if (pack.download) {
-    await downloadIcons(pack);
-  }
 
   const fileLimit = iconLimit ? parseInt(iconLimit) : undefined;
   const files = (await pack.contents.files).slice(0, fileLimit);
 
+  // Deduplicate by resolved component name, preferring the shorter (canonical) filename.
+  // lucide-static ships both compact (grid-2x2) and expanded (grid-2-x-2) names for the same icon.
+  const nameToFile = new Map<string, string>();
+  for (const file of files) {
+    const names = getIconVariantNames(file, pack);
+    const existing = nameToFile.get(names.camelCase);
+    if (!existing || file.length < existing.length) {
+      nameToFile.set(names.camelCase, file);
+    }
+  }
+  const dedupedFiles = Array.from(nameToFile.values());
+
   const variantsResult = await Promise.all(
-    files.map(async (file) => ({
+    dedupedFiles.map(async (file) => ({
       file,
       ...(await generateIconVariant(file, pack)),
     }))
@@ -151,61 +158,15 @@ async function generateIcons(pack: IconPackConfig) {
   console.log(`Generated ${pack.name}: ${variantsResult.length} icons`);
 }
 
-async function createConfigs(packs: IconPackConfig[]) {
-  const configs = JSON.stringify(
-    packs.map(
-      ({
-        license,
-        licenseUrl,
-        name,
-        prefix,
-        projectUrl,
-        variants,
-        defaultVariants,
-      }) => ({
-        license,
-        licenseUrl,
-        name,
-        prefix,
-        projectUrl,
-        variants,
-        defaultVariants,
-      })
-    )
-  );
-  const content = `export const configs = ${configs};`;
-
-  await writeFile(join(pageOutputPath, "configs.ts"), content);
-}
-
-async function createRootIndex(packs: IconPackConfig[]) {
-  const content = packs
-    .map(
-      (pack) =>
-        `export * from './${pack.prefix.toLowerCase()}/${pack.prefix.toLowerCase()}';
-`
-    )
-    .join("\n");
-
-  await writeFile(join(baseOutputPath, "all.ts"), content);
-}
-
 async function cleanup() {
   await rm(baseOutputPath, { force: true, recursive: true });
-  await rm(pageOutputPath, { force: true, recursive: true });
   await mkdir(baseOutputPath);
-  await mkdir(pageOutputPath);
-  await writeFile(join(baseOutputPath, ".gitkeep"), "");
-  await writeFile(join(pageOutputPath, ".gitkeep"), "");
+  await writeFile(`${baseOutputPath}/.gitkeep`, "");
 }
 
 export async function run() {
   await cleanup();
-  return Promise.all([
-    ...configs.map(generateIcons),
-    createRootIndex(configs),
-    createConfigs(configs),
-  ]);
+  await generateIcons(lucidePack);
 }
 
 run();
