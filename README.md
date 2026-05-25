@@ -1,6 +1,6 @@
 # Qwik Icons
 
-Include lucide icons easily in your Qwik projects with `qwicons` 🚀
+Latest [lucide](https://lucide.dev) icons as Qwik components 🚀
 
 ## Installation
 
@@ -14,10 +14,10 @@ bun add qwicons
 ## Usage
 
 ```tsx
-import { LuRocket } from "qwicons/lucide";
+import { LuRocket } from "qwicons";
 
 export const MyComponent = component$(() => {
-  // Icon size and color are inherited by default ⬇️
+  // Icon size and color are inherited via CSS ⬇️
   return (
     <div style={{ color: "red", fontSize: "40px" }}>
       <LuRocket />
@@ -26,10 +26,24 @@ export const MyComponent = component$(() => {
 });
 ```
 
-## Available Libraries
+Icons accept all standard SVG props via `IconProps` (`QwikIntrinsicElements["svg"]`):
 
 ```tsx
-import { LuRocket } from "qwicons/lucide";
+import { LuRocket, type IconProps } from "qwicons";
+
+<LuRocket width="24px" height="24px" class="my-icon" />
 ```
 
-> **Missing a library?** Feel free to [open an issue](https://github.com/xiaofan2406/qwicons/issues/new) 🤝
+## Icon Names
+
+All lucide icons are available with the `Lu` prefix in `CamelCase`:
+
+| Import | Lucide icon |
+|--------|-------------|
+| `LuRocket` | `rocket` |
+| `LuChevronDown` | `chevron-down` |
+| `LuCircleCheck` | `circle-check` |
+
+Browse all icons at [lucide.dev/icons](https://lucide.dev/icons).
+
+> **Missing something?** Feel free to [open an issue](https://github.com/xiaofan2406/qwicons/issues/new) 🤝
