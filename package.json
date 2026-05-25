@@ -13,27 +13,19 @@
     "icons",
     "lucide"
   ],
-  "types": "./lib/utils/index.d.ts",
+  "types": "./lib/entry.lib.d.ts",
   "qwik": "./lib/entry.lib.qwik.mjs",
   "exports": {
     ".": {
+      "types": "./lib/entry.lib.d.ts",
       "import": "./lib/entry.lib.qwik.mjs",
-      "require": "./lib/entry.lib.qwik.cjs",
-      "types": "./lib/entry.lib.d.ts"
-    },
-    "./lucide": {
-      "import": "./lib/lu.qwik.mjs",
-      "require": "./lib/lu.qwik.cjs",
-      "types": "./lib/icons/lu/lu.d.ts"
+      "require": "./lib/entry.lib.qwik.cjs"
     }
   },
   "typesVersions": {
     "*": {
       "*": [
         "./lib/entry.lib.d.ts"
-      ],
-      "lucide": [
-        "./lib/icons/lu/lu.d.ts"
       ]
     }
   },

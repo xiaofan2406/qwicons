@@ -6,7 +6,7 @@ export default defineConfig(() => {
     build: {
       target: "es2020",
       lib: {
-        entry: ["./src/icons/lu/lu.js", "./src/entry.lib.ts"],
+        entry: ["./src/entry.lib.ts"],
         formats: ["es", "cjs"],
         fileName: (format, entry) =>
           `${entry}.qwik.${format === "es" ? "mjs" : "cjs"}`,
